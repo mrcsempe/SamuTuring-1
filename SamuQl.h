@@ -1156,19 +1156,30 @@ public:
 
     std::string printSortedRules() {
 
-        std::vector<std::pair<std::pair<int, int>, int>> tmp;
+        std::vector<std::tuple<int, int, int>> tmp;
 
         for ( auto& rule : rules ) {
-            std::pair<std::pair<int, int>, int> p {{rule.first.first, rule.first.second}, rule.second};
+            auto p = std::make_tuple(rule.first.first, rule.first.second, rule.second);
             tmp.push_back ( p );
         }
 
+        /*lambda
         std::sort (
             std::begin ( tmp ), std::end ( tmp ),
         [=] ( auto&& t1, auto&&t2 ) {
-            return t1.second > t2.second;
+            return std::get<2>(t1) > std::get<2>(t2);
         }
-        );
+        );*/
+
+        struct compareV
+        {
+        	bool operator()(const std::tuple<int,int,int> &a, const std::tuple<int,int,int> &b )
+        	const {
+        		return std::get<2>(a) > std::get<2>(b);
+        	}
+        };
+
+        std::sort ( tmp.begin(), tmp.end(), compareV() );
 
         std::stringstream ss;
 
@@ -1176,7 +1187,7 @@ public:
 
         for ( auto& rule : tmp ) {
             //ss << ", " <<rule.first.first <<","  << rule.first.second << "(" << rule.second<< ") ";
-ss << ", " <<rule.first.first <<", "  << rule.first.second;
+ss << ", " << std::get<0>(rule) <<", "  << std::get<1>(rule);
 	  
 	}
         return ss.str();
